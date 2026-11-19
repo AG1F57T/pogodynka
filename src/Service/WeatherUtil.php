@@ -36,4 +36,22 @@ class WeatherUtil
 
         return $this->getWeatherForLocation($location);
     }
+
+    public function index(
+        #[MapQueryParameter('country')] string $country,
+        #[MapQueryParameter('city')] string $city,
+        WeatherUtil $util,
+    ): JsonResponse
+    {
+        $measurements = $util->getWeatherForCountryAndCity($country, $city);
+
+        return $this->json([
+            'city' => $city,
+            'country' => $country,
+            'measurements' => array_map(fn(Measurement $m) => [
+                'date' => $m->getDate()->format('Y-m-d'),
+                'celsius' => $m->getCelsius(),
+            ], $measurements),
+        ]);
+    }
 }
